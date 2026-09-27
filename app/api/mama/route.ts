@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { openai, OPENAI_MODEL } from "@/lib/openai";
-import { MAMA_SYSTEM_PROMPT } from "@/lib/mamaPrompt";
-import { zodTextFormat } from "openai/helpers/zod";
-import { z } from "zod";
-
-const MamaAnswerSchema = z.object({
-  shout: z.string(),
-  hitokoto: z.string(),
-  action: z.string(),
-  safety: z.boolean(),
-});
+import { getMamaAnswer } from "@/lib/mamaService";
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,31 +13,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "相談内容は500文字以内で入力してください。" }, { status: 400 });
     }
 
-    // 簡易的な深刻度チェック
-    const criticalKeywords = ["死にたい", "殺す", "自殺", "消えたい", "虐待", "DV", "暴力"];
-    const isCritical = criticalKeywords.some(keyword => message.includes(keyword));
-
-    // Responses API の構造化出力 (公式推奨形)
-    const client = openai as any;
-    const response = await client.responses.parse({
-      model: OPENAI_MODEL,
-      instructions: MAMA_SYSTEM_PROMPT,
-      input: message,
-      text: {
-        format: zodTextFormat(MamaAnswerSchema, "mama_answer")
-      }
-    });
-
-    const answer = response.output_parsed;
-
-    if (!answer) {
-      throw new Error("ママの回答を読み取れなかったわ。");
-    }
-
-    // サーバーサイドでの安全性上書き
-    if (isCritical) {
-      answer.safety = true;
-    }
+    const answer = await getMamaAnswer(message);
 
     return NextResponse.json(answer);
   } catch (error: any) {
