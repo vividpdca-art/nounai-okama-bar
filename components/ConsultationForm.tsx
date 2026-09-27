@@ -44,7 +44,13 @@ export default function ConsultationForm({ onSubmit, isLoading }: ConsultationFo
           disabled:bg-[#0f0908] disabled:border-zinc-900 disabled:text-zinc-700 disabled:cursor-not-allowed
           enabled:bg-[#4a2e25] enabled:border-[var(--color-bar-amber)]/60 enabled:text-[var(--color-bar-ivory)] enabled:cursor-pointer enabled:hover:bg-[#5a3e35] enabled:hover:border-[var(--color-bar-amber)] enabled:active:scale-[0.98] enabled:shadow-[0_4px_25px_rgba(0,0,0,0.8)]"
         >
-          {isLoading ? "聴いているわ..." : "ママに聞く"}
+          {isLoading ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="animate-pulse text-zinc-400 text-sm">ママ、考え中…</span>
+            </span>
+          ) : (
+            "ママに聞く"
+          )}
         </button>
       </div>
     </form>

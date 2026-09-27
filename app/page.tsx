@@ -11,24 +11,36 @@ export default function Home() {
   const [answer, setAnswer] = useState<MamaAnswerType | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
-  const fixedAnswer: MamaAnswerType = {
-    shout: "あんた、それ本当に悩まなきゃいけないこと？",
-    hitokoto: "頭の中だけで考えてると、悩みって勝手に大きくなるのよ。",
-    action: "今日は5分だけ、気になっていることに手をつけてみなさい。",
-  };
-
   const handleConsult = async (text: string) => {
     setStatus("loading");
     
-    setTimeout(() => {
-      setAnswer(fixedAnswer);
+    try {
+      const response = await fetch("/api/mama", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: text }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "予期せぬエラーが発生しました");
+      }
+
+      const data: MamaAnswerType = await response.json();
+      setAnswer(data);
       setStatus("answered");
       
       setTimeout(() => {
         const answerElement = document.getElementById("answer-area");
         answerElement?.scrollIntoView({ behavior: "smooth" });
       }, 100);
-    }, 1500);
+    } catch (error: any) {
+      console.error("Consult Error:", error);
+      alert(error.message || "ごめんなさいね、今ちょっとママの頭が回ってないみたい。もう一度聞いてちょうだい。");
+      setStatus("initial");
+    }
   };
 
   const handleReset = () => {
