@@ -10,6 +10,9 @@
     "test:mama": "tsx scripts/testMama.ts"
   },
   "dependencies": {
+    "@upstash/ratelimit": "^2.2.0",
+    "@upstash/redis": "^1.39.0",
+    "@vercel/functions": "^3.9.11",
     "next": "16.3.6",
     "openai": "^7.23.0",
     "react": "19.2.8",
