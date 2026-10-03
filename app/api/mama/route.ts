@@ -6,21 +6,35 @@ import { ipAddress } from "@vercel/functions";
 export async function POST(req: NextRequest) {
   const isProduction = process.env.NODE_ENV === "production";
 
+  // 診断ログ 1: 環境とIPの確認
+  const currentIp = ipAddress(req);
+  console.log("[Mama Diagnostics: Env & IP]", {
+    VERCEL_ENV: process.env.VERCEL_ENV,
+    NODE_ENV: process.env.NODE_ENV,
+    HAS_KV_URL: Boolean(process.env.KV_REST_API_URL),
+    HAS_KV_TOKEN: Boolean(process.env.KV_REST_API_TOKEN),
+    detectedIp: currentIp,
+  });
+
   try {
     // 1. IP取得
-    const ip = ipAddress(req);
+    const ip = currentIp;
     
     // IPが取得できない場合のフォールバック: 
     // "anonymous" という固定識別子を使用する。
-    // これにより、IPが取得できないリクエストは全て単一のレート制限枠を共有することになり、
-    // 未識別リクエストによる大量アクセスを防止できる。
     const identifier = ip ?? "anonymous";
 
     // 2. レートリミットの適用
     if (ratelimit) {
       try {
+        // 診断ログ 2: Ratelimit開始
+        console.log("[Mama Diagnostics: Ratelimit Start]", { identifier });
+        
         const { success, limit, reset, remaining } = await ratelimit.limit(identifier);
         
+        // 診断ログ 3: Ratelimit結果
+        console.log("[Mama Diagnostics: Ratelimit Result]", { success, remaining, reset });
+
         if (!success) {
           return NextResponse.json(
             { error: "ちょっと、立て続けに話しすぎよ。1分間に5回までにしてちょうだい。" },
