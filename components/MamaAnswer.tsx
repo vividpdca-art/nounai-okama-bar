@@ -30,7 +30,7 @@ export default function MamaAnswer({ answer, onReset }: MamaAnswerProps) {
         <div className="px-6 sm:px-10">
           <div className="flex items-center gap-4 mb-4 opacity-40">
             <div className="w-8 h-[0.5px] bg-zinc-700" />
-            <span className="text-[10px] tracking-[0.3em] text-zinc-400 uppercase font-sans">Today's Step</span>
+            <span className="text-[10px] tracking-[0.3em] text-zinc-400 uppercase font-sans">Today&apos;s Step</span>
           </div>
           <p className="text-[var(--color-bar-ivory)] leading-relaxed text-base sm:text-lg pl-6 border-l border-[var(--color-bar-amber)]/30 font-serif font-medium text-left">
             {answer.action}
@@ -41,7 +41,7 @@ export default function MamaAnswer({ answer, onReset }: MamaAnswerProps) {
         <div className="px-6 sm:px-10">
           <div className="flex items-center gap-4 mb-4 opacity-40">
             <div className="w-8 h-[0.5px] bg-zinc-700" />
-            <span className="text-[10px] tracking-[0.3em] text-zinc-400 uppercase font-sans">Mama's Words</span>
+            <span className="text-[10px] tracking-[0.3em] text-zinc-400 uppercase font-sans">Mama&apos;s Words</span>
           </div>
           <p className="text-zinc-300 leading-loose text-base pl-6 border-l border-zinc-800/50 font-serif text-left">
             {answer.hitokoto}

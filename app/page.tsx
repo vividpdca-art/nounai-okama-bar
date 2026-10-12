@@ -36,9 +36,10 @@ export default function Home() {
         const answerElement = document.getElementById("answer-area");
         answerElement?.scrollIntoView({ behavior: "smooth" });
       }, 100);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Consult Error:", error);
-      alert(error.message || "ごめんなさいね、今ちょっとママの頭が回ってないみたい。もう一度聞いてちょうだい。");
+      const message = error instanceof Error ? error.message : "ごめんなさいね、今ちょっとママの頭が回ってないみたい。もう一度聞いてちょうだい。";
+      alert(message);
       setStatus("initial");
     }
   };
