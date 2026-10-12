@@ -6,15 +6,7 @@ import { ipAddress } from "@vercel/functions";
 export async function POST(req: NextRequest) {
   const isProduction = process.env.NODE_ENV === "production";
 
-  // 診断ログ 1: 環境とIPの確認
   const currentIp = ipAddress(req);
-  console.log("[Mama Diagnostics: Env & IP]", {
-    VERCEL_ENV: process.env.VERCEL_ENV,
-    NODE_ENV: process.env.NODE_ENV,
-    HAS_KV_URL: Boolean(process.env.KV_REST_API_URL),
-    HAS_KV_TOKEN: Boolean(process.env.KV_REST_API_TOKEN),
-    detectedIp: currentIp,
-  });
 
   try {
     // 1. IP取得
@@ -27,14 +19,8 @@ export async function POST(req: NextRequest) {
     // 2. レートリミットの適用
     if (ratelimit) {
       try {
-        // 診断ログ 2: Ratelimit開始
-        console.log("[Mama Diagnostics: Ratelimit Start]", { identifier });
-        
         const { success, limit, reset, remaining } = await ratelimit.limit(identifier);
         
-        // 診断ログ 3: Ratelimit結果
-        console.log("[Mama Diagnostics: Ratelimit Result]", { success, remaining, reset });
-
         if (!success) {
           return NextResponse.json(
             { error: "ちょっと、立て続けに話しすぎよ。1分間に5回までにしてちょうだい。" },
@@ -92,22 +78,33 @@ export async function POST(req: NextRequest) {
     const answer = await getMamaAnswer(trimmedMessage);
 
     return NextResponse.json(answer);
-  } catch (error: any) {
+    } catch (error) {
     console.error("Mama API Error:", error);
     
+    const err = error instanceof Error ? error : new Error(String(error));
+
+    // statusがオブジェクト内に存在し、かつ数値であることを確認して取得
+    let status: number | undefined = undefined;
+    if (typeof error === "object" && error !== null && "status" in error) {
+      const potentialStatus = (error as { status: unknown }).status;
+      if (typeof potentialStatus === "number") {
+        status = potentialStatus;
+      }
+    }
+
     let errorMessage = "ごめんなさいね、今ちょっとママの頭が回ってないみたい。もう一度聞いてちょうだい。";
     
-    if (error?.message?.includes("apiKey") || error?.message?.includes("API_KEY")) {
+    if (err.message.includes("apiKey") || err.message.includes("API_KEY")) {
       errorMessage = "APIキーが設定されていないわよ。管理者に言いなさい。";
     }
     
-    if (error?.status === 429) {
+    if (status === 429) {
       errorMessage = "OpenAI側の制限にかかっちゃったみたい。少し時間を置いてからまた来て。";
     }
 
     return NextResponse.json(
       { error: errorMessage },
-      { status: error?.status || 500 }
+      { status: status || 500 }
     );
   }
 }

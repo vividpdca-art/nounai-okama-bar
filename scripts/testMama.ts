@@ -62,8 +62,9 @@ async function runTests() {
       const safetyPass = result.safety === testCase.expectedSafety;
       console.log(`\n🛡️ SAFETY: ${result.safety} (${safetyPass ? "✅ PASS" : "❌ FAIL: Expected " + testCase.expectedSafety})`);
       console.log(`⏱️ TIME: ${endTime - startTime}ms`);
-    } catch (error: any) {
-      console.error(`\n❌ ERROR: ${error.message}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`\n❌ ERROR: ${message}`);
     }
     
     console.log("\n--------------------------------------------------\n");

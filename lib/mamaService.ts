@@ -26,8 +26,7 @@ export async function getMamaAnswer(message: string): Promise<MamaAnswerType> {
   const isCritical = criticalKeywords.some(keyword => message.includes(keyword));
 
   // Responses API の構造化出力 (公式推奨形)
-  const client = openai as any;
-  const response = await client.responses.parse({
+  const response = await openai.responses.parse({
     model: OPENAI_MODEL,
     instructions: MAMA_SYSTEM_PROMPT,
     input: message,
@@ -36,7 +35,7 @@ export async function getMamaAnswer(message: string): Promise<MamaAnswerType> {
     }
   });
 
-  const answer = response.output_parsed as MamaAnswerType;
+  const answer = response.output_parsed;
 
   if (!answer) {
     throw new Error("ママの回答を読み取れなかったわ。");
